@@ -1,5 +1,5 @@
-export interface Goal {
-  id?: string; // optional for new entries
+export interface goals {
+  id?: Number; // optional for new entries
   topic: string;
   status: 'Beginner' | 'Intermediate' | 'Advanced';
   notes: string[];
