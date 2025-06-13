@@ -3,11 +3,13 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const worqClient = async (query: string) => {
+const API_URL = 'https://api.worqhat.com/api/db/run-query';
+
+export async function worqClient(sql: string) {
   try {
-    const response = await axios.post(
-      `https://api.worqhat.com/api/db/worqClient`,
-      { query },
+    const res = await axios.post(
+      API_URL,
+      { query: sql },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -15,10 +17,8 @@ export const worqClient = async (query: string) => {
         },
       }
     );
-
-    return response.data;
-  } catch (error: any) {
-    console.error('WorqDB query failed:', error.message);
-    throw error;
+    return res.data;
+  } catch (err: any) {
+    throw new Error(`Query failed: ${err.message}`);
   }
-};
+}
