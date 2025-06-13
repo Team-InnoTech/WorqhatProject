@@ -68,13 +68,13 @@ export const updateGoal = async (req: Request, res: Response) => {
   try {
     await worqClient(deleteSQL);
     const result = await worqClient(insertSQL);
-    res.status(200).json({ message: `Goal with ID ${documentId} updated, result` });
+    res.status(200).json({ message: `Goal with ID ${documentId} updated`, result });
   } catch (error: any) {
     console.error("Update error:", error);
     res.status(500).json({
-      message: `Failed to update goal with ID ${documentId},
+      message: `Failed to update goal with ID ${documentId}`,
       error: error.message,
-      stack: error.stack,`
+      stack: error.stack,
     });
   }
 };
@@ -88,8 +88,8 @@ export const deleteGoal = async (req: Request, res: Response) => {
     const query = `ALTER TABLE goals
     DELETE WHERE documentId = '${documentId}'`;
     await worqClient(query);
-    res.status(200).json({ message: `Goal with ID ${documentId} deleted successfully `}); 
+    res.status(200).json({ message: `Goal with ID ${documentId} deleted successfully` }); 
   } catch (error: any) {
-    res.status(500).json({ message: `Failed to delete goal with ID ${documentId}, error: error.message` });
+    res.status(500).json({ message: `Failed to delete goal with ID ${documentId}`, error: error.message });
   }
 };
