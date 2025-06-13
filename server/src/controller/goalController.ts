@@ -41,18 +41,32 @@ export const updateGoal = async (req: Request, res: Response) => {
   const { documentId } = req.params;
   const { topic, status, notes, resources, tags } = req.body;
 
-  try {
-    const query = `
-      ALTER TABLE goals UPDATE 
-          topic='${topic}',
-          status='${status}',
-          notes='${notes}',
-          resources='${resources}',
-          tags='${tags}'
-      WHERE documentId='${documentId}';
-    `;
+  if (!documentId || !topic || !status) {
+    return res.status(400).json({ error: "Missing required fields." });
+  }
 
-    const result = await worqClient(query);
+  const safeTopic = topic.replace(/'/g, "''");
+  const safeStatus = status.replace(/'/g, "''");
+  const safeNotes = JSON.stringify(notes || []);
+  const safeResources = JSON.stringify(resources || []);
+  const safeTags = JSON.stringify(tags || []);
+
+  const deleteSQL = `ALTER TABLE goals DELETE WHERE documentId = '${documentId}'`;
+
+  const insertSQL = `
+    INSERT INTO goals (documentId, topic, status, notes, resources, tags)
+    VALUES (
+      '${documentId}',
+      '${safeTopic}',
+      '${safeStatus}',
+      '${safeNotes}',
+      '${safeResources}',
+      '${safeTags}'
+    );
+  `;
+  try {
+    await worqClient(deleteSQL);
+    const result = await worqClient(insertSQL);
     res.status(200).json({ message: `Goal with ID ${documentId} updated`, result });
   } catch (error: any) {
     console.error('Update error:', error);
@@ -63,8 +77,6 @@ export const updateGoal = async (req: Request, res: Response) => {
     });
   }
 };
-
-
 
 // DELETE: remove a goal
 export const deleteGoal = async (req: Request, res: Response) => {
