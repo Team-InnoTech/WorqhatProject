@@ -11,7 +11,7 @@ export const worqClient = async (query: string) => {
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.WORQDB_CLIENT_KEY}`,
+          'Authorization': `Bearer ${process.env.WORQDB_CLIENT_KEY}` || 'wh_mbtcop3zMtNyR21UOFrhnGWlcH6Ksy6xBOaOb56',
         },
       }
     );

@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { worqClient } from '../db/worqdbClient';
-import { goals } from '../types/Goal';
+import { goals } from '../types/goals';
 
 // GET all goals
 export const getAllGoals = async (req: Request, res: Response) => {
   try {
-    const query = `SELECT * FROM Goal`;
+    const query = `SELECT * FROM goals`;
     const result = await worqClient(query);
     res.status(200).json(result);
   } catch (error: any) {
@@ -19,14 +19,13 @@ export const createGoal = async (req: Request, res: Response) => {
     const { topic, status, notes, resources, tags } = req.body as goals;
 
     const query = `
-      INSERT INTO Goal (topic, status, notes, resources, tags, createdAt)
+      INSERT INTO goals (topic, status, notes, resources, tags)
       VALUES (
         '${topic}',
         '${status}',
         '${JSON.stringify(notes)}',
         '${JSON.stringify(resources)}',
-        '${JSON.stringify(tags)}',
-        '${new Date().toISOString()}'
+        '${JSON.stringify(tags)}'
       )
     `;
 
@@ -39,38 +38,58 @@ export const createGoal = async (req: Request, res: Response) => {
 
 // PUT: update an existing goal
 export const updateGoal = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { documentId } = req.params;
   const { topic, status, notes, resources, tags } = req.body;
 
-  try {
-    const query = `
-      UPDATE Goal
-      SET topic='${topic}',
-          status='${status}',
-          notes='${JSON.stringify(notes)}',
-          resources='${JSON.stringify(resources)}',
-          tags='${JSON.stringify(tags)}'
-      WHERE id='${id}'
-    `;
+  if (!documentId || !topic || !status) {
+    return res.status(400).json({ error: "Missing required fields." });
+  }
 
-    const result = await worqClient(query);
-    res.status(200).json({ message: `Goal with ID ${id} updated`, result });
+  const safeTopic = topic.replace(/'/g, "''");
+  const safeStatus = status.replace(/'/g, "''");
+  const safeNotes = JSON.stringify(notes || []);
+  const safeResources = JSON.stringify(resources || []);
+  const safeTags = JSON.stringify(tags || []);
+
+  const deleteSQL = `ALTER TABLE goals DELETE WHERE documentId = '${documentId}'`;
+
+  const insertSQL = `
+    INSERT INTO goals (documentId, topic, status, notes, resources, tags)
+    VALUES (
+      '${documentId}',
+      '${safeTopic}',
+      '${safeStatus}',
+      '${safeNotes}',
+      '${safeResources}',
+      '${safeTags}'
+    );
+  `;
+
+  try {
+    await worqClient(deleteSQL);
+    const result = await worqClient(insertSQL);
+    res.status(200).json({ message: `Goal with ID ${documentId} updated, result` });
   } catch (error: any) {
-    res.status(500).json({ message: `Failed to update goal with ID ${id}`, error: error.message });
+    console.error("Update error:", error);
+    res.status(500).json({
+      message: `Failed to update goal with ID ${documentId},
+      error: error.message,
+      stack: error.stack,`
+    });
   }
 };
 
 
 // DELETE: remove a goal
 export const deleteGoal = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { documentId } = req.params;
 
   try {
-    const query = `DELETE FROM Goal WHERE id='${id}'`;
+    const query = `ALTER TABLE goals
+    DELETE WHERE documentId = '${documentId}'`;
     await worqClient(query);
-    res.status(204).send(); // No Content
+    res.status(200).json({ message: `Goal with ID ${documentId} deleted successfully `}); 
   } catch (error: any) {
-    res.status(500).json({ message: `Failed to delete goal with ID ${id}`, error: error.message });
+    res.status(500).json({ message: `Failed to delete goal with ID ${documentId}, error: error.message` });
   }
 };
-
