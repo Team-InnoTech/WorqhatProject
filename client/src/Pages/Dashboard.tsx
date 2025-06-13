@@ -4,6 +4,7 @@ import GoalCard from '../components/page_comp/GoalCard'
 import CreateGoalForm from '../components/page_comp/CreateGoalForm'
 import type { Goal } from '../types/goal'
 import { RxCross2 } from "react-icons/rx"
+import {toast} from "sonner"
 
 function Dashboard() {
   const [goals, setGoals] = useState<Goal[]>([
@@ -58,6 +59,7 @@ function Dashboard() {
 
   const handleDeleteGoal = (index: number) => {
     setGoals(prev => prev.filter((_, i) => i !== index))
+    toast.success("Deleted successfully!");
   }
 
   return (
