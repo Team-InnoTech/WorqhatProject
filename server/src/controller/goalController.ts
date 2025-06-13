@@ -5,7 +5,20 @@ import { goals } from '../types/goals';
 // GET all goals
 export const getAllGoals = async (req: Request, res: Response) => {
   try {
-    const query = `SELECT * FROM goals`;
+    const { search, status, sort } = req.query; 
+
+    let query = `SELECT * FROM goals`;
+    const filters: string[] = [];
+
+    if (search) filters.push(`LOWER(topic) LIKE '%${(search as string).toLowerCase()}%'`);
+    if (status) filters.push(`LOWER(status) = '${(status as string).toLowerCase()}'`);
+
+    if (filters.length > 0) {
+      query += ` WHERE ${filters.join(' AND ')}`;
+    }
+    query += sort === 'recent' ? ` ORDER BY createdAt DESC` : ` ORDER BY topic ASC`;
+
+
     const result = await worqClient(query);
     res.status(200).json(result);
   } catch (error: any) {
@@ -25,7 +38,7 @@ export const createGoal = async (req: Request, res: Response) => {
     const gIds = fetchResult?.data?.map((row: any) => row.documentId) || [];
     const gNums = gIds
       .map((id: string) => parseInt(id.replace('g', ''), 10))
-      .filter((num) => !isNaN(num));
+      .filter((num: number) => !isNaN(num));
 
     const nextNumber = gNums.length > 0 ? Math.max(...gNums) + 1 : 1;
     const newDocumentId = `g${nextNumber}`;

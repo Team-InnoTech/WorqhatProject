@@ -4,6 +4,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import type { goals } from "../../types/goals";
+import { toast } from "sonner";
 
 type CreateGoalFormProps = {
   onAdd: (goal: goals) => void;
