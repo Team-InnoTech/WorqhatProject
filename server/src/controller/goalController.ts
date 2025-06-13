@@ -64,12 +64,13 @@ export const updateGoal = async (req: Request, res: Response) => {
       '${safeTags}'
     );
   `;
+
   try {
     await worqClient(deleteSQL);
     const result = await worqClient(insertSQL);
     res.status(200).json({ message: `Goal with ID ${documentId} updated`, result });
   } catch (error: any) {
-    console.error('Update error:', error);
+    console.error("Update error:", error);
     res.status(500).json({
       message: `Failed to update goal with ID ${documentId}`,
       error: error.message,
@@ -77,6 +78,7 @@ export const updateGoal = async (req: Request, res: Response) => {
     });
   }
 };
+
 
 // DELETE: remove a goal
 export const deleteGoal = async (req: Request, res: Response) => {
