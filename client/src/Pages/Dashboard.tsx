@@ -1,52 +1,45 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Header from '../components/page_comp/Header'
 import GoalCard from '../components/page_comp/GoalCard'
 import CreateGoalForm from '../components/page_comp/CreateGoalForm'
-import type { Goal } from '../types/goal'
+import type { goals } from '../types/goals'
 import { RxCross2 } from "react-icons/rx"
-import {toast} from "sonner"
+import { fetchGoals, createGoal, updateGoal, deleteGoal } from '../services/goalService'
+import { v4 as uuidv4 } from 'uuid'
 
 function Dashboard() {
-  const [goals, setGoals] = useState<Goal[]>([
-    {
-      topic: "Learn TypeScript",
-      status: "Intermediate",
-      notes: ["Understand types", "Practice utility types"],
-      resources: ["https://www.typescriptlang.org/docs", "https://tsplay.dev"],
-      tags: ["typescript", "frontend", "practice"],
-    },
-    {
-      topic: "Master React",
-      status: "Advanced",
-      notes: ["Learn hooks", "Understand context API", "Build projects"],
-      resources: [
-        "https://reactjs.org/docs/getting-started.html",
-        "https://react.dev/learn",
-      ],
-      tags: ["react", "frontend", "projects"],
-    },
-  ])
-
+  const [goals, setGoals] = useState<goals[]>([])
   const [showForm, setShowForm] = useState(false)
-  const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
+  const [editingGoal, setEditingGoal] = useState<goals | null>(null)
+
+useEffect(() => {
+  fetchGoals().then(setGoals)
+}, [])
 
   const handleAddClick = () => {
-    setEditingGoal(null) // clear any previous goal
+    setEditingGoal(null) 
     setShowForm(true)
   }
 
-  const handleEditGoal = (goal: Goal) => {
-    setEditingGoal(goal) // load goal into form
+  const handleEditGoal = (goal: goals) => {
+    setEditingGoal(goal) 
     setShowForm(true)
   }
 
-  const handleSaveGoal = (goal: Goal) => {
-    if (editingGoal) {
-      setGoals(prev =>
-        prev.map(g => (g.topic === editingGoal.topic ? goal : g))
-      )
-    } else {
-      setGoals(prev => [...prev, goal])
+  const handleSaveGoal = async (goal: goals) => {
+    try {
+      if (editingGoal && (editingGoal as any).documentId) {
+        await updateGoal((editingGoal as any).documentId, goal)
+        setGoals(prev =>
+          prev.map(g => ((g as any).documentId === (editingGoal as any).documentId ? goal : g))
+        )
+      } else {
+        const newGoal = { ...goal, documentId: uuidv4() }
+        await createGoal(newGoal)
+        setGoals(prev => [...prev, newGoal])
+      }
+    } catch (err) {
+      console.error('Save failed:', err)
     }
     setShowForm(false)
     setEditingGoal(null)
@@ -57,10 +50,15 @@ function Dashboard() {
     setEditingGoal(null)
   }
 
-  const handleDeleteGoal = (index: number) => {
-    setGoals(prev => prev.filter((_, i) => i !== index))
-    toast.success("Deleted successfully!");
+  const handleDeleteGoal = async (goal: goals) => {
+    try {
+      await deleteGoal((goal as any).documentId)
+      setGoals(prev => prev.filter(g => (g as any).documentId !== (goal as any).documentId))
+    } catch (err) {
+      console.error('Delete failed:', err)
+    }
   }
+
 
   return (
     <div className="relative">
@@ -88,9 +86,9 @@ function Dashboard() {
       <main className="flex flex-wrap gap-4 p-4">
         {goals.map((goal, idx) => (
           <GoalCard
-            key={idx}
+            key={(goal as any).documentId || idx}
             goal={goal}
-            onDelete={() => handleDeleteGoal(idx)}
+            onDelete={() => handleDeleteGoal(goal)}
             onEdit={() => handleEditGoal(goal)}
           />
         ))}

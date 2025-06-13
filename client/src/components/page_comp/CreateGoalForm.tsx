@@ -3,13 +3,12 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
-import type { Goal } from "../../types/goal";
-import { toast } from "sonner";
+import type { goals } from "../../types/goals";
 
 type CreateGoalFormProps = {
-  onAdd: (goal: Goal) => void;
+  onAdd: (goal: goals) => void;
   onCancel: () => void;
-  goalToEdit?: Goal | null;
+  goalToEdit?: goals | null;
 };
 
 export default function CreateGoalForm({
@@ -43,7 +42,7 @@ export default function CreateGoalForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newGoal: Goal = {
+    const newGoal: goals = {
       topic,
       status,
       notes: notes.split("\n").filter(Boolean),
