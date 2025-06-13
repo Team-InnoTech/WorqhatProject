@@ -5,7 +5,20 @@ import { goals } from '../types/goals';
 // GET all goals
 export const getAllGoals = async (req: Request, res: Response) => {
   try {
-    const query = `SELECT * FROM goals`;
+    const { search, status, sort } = req.query; 
+
+    let query = `SELECT * FROM goals`;
+    const filters: string[] = [];
+
+    if (search) filters.push(`LOWER(topic) LIKE '%${(search as string).toLowerCase()}%'`);
+    if (status) filters.push(`LOWER(status) = '${(status as string).toLowerCase()}'`);
+
+    if (filters.length > 0) {
+      query += ` WHERE ${filters.join(' AND ')}`;
+    }
+    query += sort === 'recent' ? ` ORDER BY createdAt DESC` : ` ORDER BY topic ASC`;
+
+
     const result = await worqClient(query);
     res.status(200).json(result);
   } catch (error: any) {
@@ -18,23 +31,51 @@ export const createGoal = async (req: Request, res: Response) => {
   try {
     const { topic, status, notes, resources, tags } = req.body as goals;
 
-    const query = `
-      INSERT INTO goals (topic, status, notes, resources, tags)
+    // Step 1: Fetch existing g-based documentIds
+    const fetchQuery = "SELECT documentId FROM goals WHERE documentId LIKE 'g%'";
+    const fetchResult = await worqClient(fetchQuery);
+
+    const gIds = fetchResult?.data?.map((row: any) => row.documentId) || [];
+    const gNums = gIds
+      .map((id: string) => parseInt(id.replace('g', ''), 10))
+      .filter((num: number) => !isNaN(num));
+
+    const nextNumber = gNums.length > 0 ? Math.max(...gNums) + 1 : 1;
+    const newDocumentId = `g${nextNumber}`;
+
+    // Manually escape string values
+    const escape = (val: any) =>
+      typeof val === 'string'
+        ? `'${val.replace(/'/g, "''")}'`
+        : `'${JSON.stringify(val).replace(/'/g, "''")}'`;
+
+    // Step 2: Create INSERT SQL
+    const insertSQL = `
+      INSERT INTO goals (documentId, topic, status, notes, resources, tags)
       VALUES (
-        '${topic}',
-        '${status}',
-        '${JSON.stringify(notes)}',
-        '${JSON.stringify(resources)}',
-        '${JSON.stringify(tags)}'
+        '${newDocumentId}',
+        ${escape(topic)},
+        ${escape(status)},
+        ${escape(notes || [])},
+        ${escape(resources || [])},
+        ${escape(tags || [])}
       )
     `;
 
-    const result = await worqClient(query);
-    res.status(201).json({ message: 'Goal created', result });
+    const insertResult = await worqClient(insertSQL);
+
+    res.status(201).json({
+      message: 'Goal created successfully',
+      documentId: newDocumentId,
+      result: insertResult
+    });
+
   } catch (error: any) {
     res.status(500).json({ message: 'Failed to create goal', error: error.message });
   }
 };
+
+
 
 // PUT: update an existing goal
 export const updateGoal = async (req: Request, res: Response) => {
@@ -93,4 +134,3 @@ export const deleteGoal = async (req: Request, res: Response) => {
     res.status(500).json({ message: `Failed to delete goal with ID ${documentId}`, error: error.message });
   }
 };
-

@@ -4,6 +4,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import type { goals } from "../../types/goals";
+import { toast } from "sonner";
 
 type CreateGoalFormProps = {
   onAdd: (goal: goals) => void;
@@ -29,6 +30,13 @@ export default function CreateGoalForm({
       setNotes(goalToEdit.notes.join("\n"));
       setResources(goalToEdit.resources.join("\n"));
       setTags(goalToEdit.tags?.join(", ") || "");
+    } else {
+      // Reset the form if switching from edit to add mode
+      setTopic("");
+      setStatus("Beginner");
+      setNotes("");
+      setResources("");
+      setTags("");
     }
   }, [goalToEdit]);
 
@@ -44,20 +52,23 @@ export default function CreateGoalForm({
     };
 
     onAdd(newGoal);
-    // Reset only if adding
+
     if (!goalToEdit) {
       setTopic("");
       setStatus("Beginner");
       setNotes("");
       setResources("");
       setTags("");
+      toast.success("Goal added successfully!");
+    } else {
+      toast.success("Goal updated successfully!");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <Label>Topic</Label>
+        <Label className="mb-2">Topic</Label>
         <Input
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
@@ -66,11 +77,11 @@ export default function CreateGoalForm({
       </div>
 
       <div>
-        <Label>Status</Label>
+        <Label className="mb-2">Status</Label>
         <select
           className="w-full border p-2 rounded-md dark:bg-zinc-800 dark:text-white"
           value={status}
-          onChange={(e) => setStatus(e.target.value as any)}
+          onChange={(e) => setStatus(e.target.value as "Beginner" | "Intermediate" | "Advanced")}
         >
           <option value="Beginner">Beginner</option>
           <option value="Intermediate">Intermediate</option>
@@ -79,7 +90,7 @@ export default function CreateGoalForm({
       </div>
 
       <div>
-        <Label>Notes (one per line)</Label>
+        <Label className="mb-2">Notes (one per line)</Label>
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
@@ -88,7 +99,7 @@ export default function CreateGoalForm({
       </div>
 
       <div>
-        <Label>Resources (one per line)</Label>
+        <Label className="mb-2">Resources (one per line)</Label>
         <Textarea
           value={resources}
           onChange={(e) => setResources(e.target.value)}
@@ -96,7 +107,7 @@ export default function CreateGoalForm({
         />
       </div>
 
-      <div>
+      <div className="mb-2">
         <Label>Tags (comma-separated)</Label>
         <Input
           value={tags}

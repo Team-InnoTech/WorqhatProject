@@ -7,6 +7,7 @@ import {
 } from '../controller/goalController';
 
 const router = express.Router();
+
 router.get('/', getAllGoals);
 router.post('/', createGoal);
 router.put('/:documentId', updateGoal);
