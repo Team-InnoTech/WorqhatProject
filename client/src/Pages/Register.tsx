@@ -5,21 +5,39 @@ import { Card, CardContent } from '../components/ui/card'
 import { Label } from '../components/ui/label'
 import { UserPlus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 const Register = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
+    setLoading(true)
 
-    // TODO: Call register API
-    console.log('Registering with:', { name, email, password })
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/register', {
+        username: name,
+        email,
+        password
+      })
 
-    // Simulate successful registration
-    navigate('/dashboard')
+      if (res.status === 201) {
+        navigate('/')
+      } else {
+        setError('Registration failed')
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -69,10 +87,14 @@ const Register = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full mt-4">
-              Register
+            <Button type="submit" className="w-full mt-4" disabled={loading}>
+              {loading ? 'Registering...' : 'Register'}
             </Button>
           </form>
+
+          {error && (
+            <p className="text-red-500 text-center mt-4 text-sm">{error}</p>
+          )}
 
           <p className="text-center text-sm text-muted-foreground mt-4">
             Already have an account?{' '}
