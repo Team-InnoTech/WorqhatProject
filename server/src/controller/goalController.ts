@@ -9,26 +9,39 @@ export const getAllGoals = async (req: Request & { user?: any }, res: Response):
     res.status(401).json({ message: "Unauthorized" });
     return;
   }
-  
+
   try {
-    const { search, status, sort } = req.query; 
-
+    const { search, status, sort } = req.query;
     const userId = req.user?.id;
-    let query = await worqClient(`SELECT * FROM goals WHERE userId = '${userId}'`);
-    const filters: string[] = [];
 
-    if (search) filters.push(`LOWER(topic) LIKE '%${(search as string).toLowerCase()}%'`);
-    if (status) filters.push(`LOWER(status) = '${(status as string).toLowerCase()}'`);
+    // Escape single quotes to prevent SQL errors
+    const escape = (val: string) => val.replace(/'/g, "''");
 
+    const filters: string[] = [`foreign_key_column = '${escape(userId)}'`];
+
+    if (search) {
+      const safeSearch = escape(search as string).toLowerCase();
+      filters.push(`LOWER(topic) LIKE '%${safeSearch}%'`);
+    }
+
+    if (status) {
+      const safeStatus = escape(status as string).toLowerCase();
+      filters.push(`LOWER(status) = '${safeStatus}'`);
+    }
+
+    let query = `SELECT * FROM goals`;
     if (filters.length > 0) {
       query += ` WHERE ${filters.join(' AND ')}`;
     }
+
     query += sort === 'recent' ? ` ORDER BY createdAt DESC` : ` ORDER BY topic ASC`;
 
+    console.log('Final SQL query:', query);
 
     const result = await worqClient(query);
-    res.status(200).json(result);
+    res.status(200).json({ data: result });
   } catch (error: any) {
+    console.error('Error in getAllGoals:', error.message, error.stack);
     res.status(500).json({ message: 'Failed to fetch goals', error: error.message });
   }
 };
