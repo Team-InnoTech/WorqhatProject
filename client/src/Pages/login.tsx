@@ -5,37 +5,41 @@ import { Card, CardContent } from '../components/ui/card'
 import { Label } from '../components/ui/label'
 import { LogIn } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios';
+import axios from 'axios'
 
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault()
+    e.preventDefault()
+    setError('')
+    setLoading(true)
 
-  try {
-    const response = await axios.post('http://localhost:5000/api/auth/login', {
-      email,
-      password,
-    })
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/login', {
+        email,
+        password
+      })
 
-    const { token, user } = response.data
+      if (res.status === 200) {
+        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('user', JSON.stringify(res.data.user))
 
-    // ✅ Store token in localStorage
-    localStorage.setItem('token', token)
-
-    // Optional: Store user info if needed
-    localStorage.setItem('user', JSON.stringify(user))
-
-    // ✅ Navigate to dashboard
-    navigate('/dashboard')
-  } catch (error: any) {
-    console.error('Login failed:', error.response?.data || error.message)
-    alert(error.response?.data?.message || 'Login failed. Please try again.')
+        navigate('/dashboard')
+      } else {
+        setError('Login failed')
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-zinc-900 dark:to-zinc-950">
@@ -72,10 +76,14 @@ const Login = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full mt-4">
-              Login
+            <Button type="submit" className="w-full mt-4" disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
             </Button>
           </form>
+
+          {error && (
+            <p className="text-red-500 text-center mt-4 text-sm">{error}</p>
+          )}
 
           <p className="text-center text-sm text-muted-foreground mt-4">
             Don’t have an account?{' '}
