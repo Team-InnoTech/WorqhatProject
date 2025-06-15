@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Dashboard.tsx
 import { useEffect, useState } from 'react';
 import Header from '../components/page_comp/Header';
