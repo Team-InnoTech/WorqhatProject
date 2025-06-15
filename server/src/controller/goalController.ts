@@ -75,8 +75,6 @@ export const createGoal = async (req: Request, res: Response) => {
   }
 };
 
-
-
 // PUT: update an existing goal
 export const updateGoal = async (req: Request, res: Response) => {
   const { documentId } = req.params;
@@ -119,7 +117,6 @@ export const updateGoal = async (req: Request, res: Response) => {
     });
   }
 };
-
 
 // DELETE: remove a goal
 export const deleteGoal = async (req: Request, res: Response) => {
