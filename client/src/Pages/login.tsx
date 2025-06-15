@@ -5,21 +5,37 @@ import { Card, CardContent } from '../components/ui/card'
 import { Label } from '../components/ui/label'
 import { LogIn } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault()
 
-    // TODO: Replace with actual login API logic
-    console.log('Logging in with:', { email, password })
+  try {
+    const response = await axios.post('http://localhost:5000/api/auth/login', {
+      email,
+      password,
+    })
 
-    // Simulate successful login
+    const { token, user } = response.data
+
+    // ✅ Store token in localStorage
+    localStorage.setItem('token', token)
+
+    // Optional: Store user info if needed
+    localStorage.setItem('user', JSON.stringify(user))
+
+    // ✅ Navigate to dashboard
     navigate('/dashboard')
+  } catch (error: any) {
+    console.error('Login failed:', error.response?.data || error.message)
+    alert(error.response?.data?.message || 'Login failed. Please try again.')
   }
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-zinc-900 dark:to-zinc-950">

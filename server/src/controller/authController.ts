@@ -36,7 +36,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 export const login = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
 
-    const getuser = `SELECT * FROM users WHERE email = '${email}'`;
+    const safeEmail = email.replace(/'/g, "''");
+    const getuser = `SELECT * FROM users WHERE email = '${safeEmail}'`;
     const result = await worqClient(getuser);
     const user = result.data?.[0];
     console.log(user);

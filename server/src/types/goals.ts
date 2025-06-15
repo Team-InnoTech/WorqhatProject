@@ -1,8 +1,9 @@
 export interface goals {
-  documentId?: string
-  topic: string
-  status: 'Beginner' | 'Intermediate' | 'Advanced';
-  notes: string[]
-  resources: string[]
-  tags: string[]
+  documentId?: string;
+  topic: string;
+  status: string;
+  notes?: string[];
+  resources?: string[];
+  tags?: string[];
+  foreign_key_column?: string;
 }
