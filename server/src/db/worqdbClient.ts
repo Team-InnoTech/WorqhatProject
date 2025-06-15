@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const API_URL = 'https://api.worqhat.com/api/db/worqClient';
+const API_URL = 'https://api.worqhat.com/api/db/run-query';
 
 export async function worqClient(sql: string) {
   try {
@@ -13,7 +13,7 @@ export async function worqClient(sql: string) {
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.WORQDB_CLIENT_KEY}` || 'wh_mbtcop3zMtNyR21UOFrhnGWlcH6Ksy6xBOaOb56',
+          'Authorization': `Bearer ${process.env.WORQDB_CLIENT_KEY}`,
         },
       }
     );

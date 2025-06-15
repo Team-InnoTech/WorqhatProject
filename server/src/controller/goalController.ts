@@ -75,15 +75,14 @@ export const createGoal = async (req: Request, res: Response) => {
   }
 };
 
-
-
 // PUT: update an existing goal
-export const updateGoal = async (req: Request, res: Response) => {
+export const updateGoal = async (req: Request, res: Response): Promise<void> => {
   const { documentId } = req.params;
   const { topic, status, notes, resources, tags } = req.body;
 
   if (!documentId || !topic || !status) {
-    return res.status(400).json({ error: "Missing required fields." });
+    res.status(400).json({ error: "Missing required fields." });
+    return;
   }
 
   const safeTopic = topic.replace(/'/g, "''");
@@ -119,7 +118,6 @@ export const updateGoal = async (req: Request, res: Response) => {
     });
   }
 };
-
 
 // DELETE: remove a goal
 export const deleteGoal = async (req: Request, res: Response) => {
