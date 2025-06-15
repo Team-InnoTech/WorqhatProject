@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import goalRoutes from './routes/goalRoutes';
+import authRoutes from './routes/authRoutes';
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/auth', authRoutes);
 app.use('/api/goals', goalRoutes);
 
 app.get('/', (req, res) => {
