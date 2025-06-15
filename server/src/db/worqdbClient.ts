@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const API_URL = 'https://api.worqhat.com/api/db/run-query';
+const API_URL = 'https://api.worqhat.com/api/db/worqClient';
 
 export async function worqClient(sql: string) {
   try {
