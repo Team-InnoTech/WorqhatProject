@@ -1,5 +1,4 @@
-// Dashboard.tsx
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Header from '../components/page_comp/Header';
 import GoalCard from '../components/page_comp/GoalCard';
 import CreateGoalForm from '../components/page_comp/CreateGoalForm';
@@ -16,25 +15,26 @@ function Dashboard() {
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
-  const [sort, setSort] = useState('recent');
+  const [sort, setSort] = useState<'recent' | 'alphabetical'>('recent');
 
-  useEffect(() => {
-    applyFilters();
-  }, []);
 
-  const applyFilters = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (search) params.append('search', search);
-      if (status) params.append('status', status);
-      if (sort) params.append('sort', sort);
+const applyFilters = useCallback(async () => {
+  try {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    if (sort) params.append('sort', sort);
 
-      const response = await fetchGoals(params.toString());
-      setGoals(response);
-    } catch (err) {
-      console.error('Failed to apply filters:', err);
-    }
-  };
+    const response = await fetchGoals(params.toString());
+    setGoals(response);
+  } catch (err) {
+    console.error('Failed to apply filters:', err);
+  }
+}, [search, status, sort]);
+
+useEffect(() => {
+  applyFilters();
+}, [applyFilters]);
 
   const handleAddClick = () => {
     setEditingGoal(null);
@@ -48,19 +48,20 @@ function Dashboard() {
 
   const handleSaveGoal = async (goal: goals) => {
     try {
-      if (editingGoal && (editingGoal as any).documentId) {
-        await updateGoal((editingGoal as any).documentId, goal);
+      if (editingGoal?.documentId) {
+        await updateGoal(editingGoal.documentId, goal);
         setGoals(prev =>
-          prev.map(g => ((g as any).documentId === (editingGoal as any).documentId ? goal : g))
+          prev.map(g => (g.documentId === editingGoal.documentId ? goal : g))
         );
       } else {
-        const newGoal = { ...goal, documentId: uuidv4() };
+        const newGoal: goals = { ...goal, documentId: uuidv4() };
         await createGoal(newGoal);
         setGoals(prev => [...prev, newGoal]);
       }
     } catch (err) {
       console.error('Save failed:', err);
     }
+
     setShowForm(false);
     setEditingGoal(null);
   };
@@ -72,9 +73,11 @@ function Dashboard() {
 
   const handleDeleteGoal = async (goal: goals) => {
     try {
-      await deleteGoal((goal as any).documentId);
-      setGoals(prev => prev.filter(g => (g as any).documentId !== (goal as any).documentId));
-      toast.success('Deleted successfully');
+      if (goal.documentId) {
+        await deleteGoal(goal.documentId);
+        setGoals(prev => prev.filter(g => g.documentId !== goal.documentId));
+        toast.success('Deleted successfully');
+      }
     } catch (err) {
       console.error('Delete failed:', err);
     }
@@ -108,7 +111,7 @@ function Dashboard() {
         <select
           className="border px-3 py-2 rounded-md w-full sm:w-40"
           value={sort}
-          onChange={e => setSort(e.target.value)}
+          onChange={e => setSort(e.target.value as 'recent' | 'alphabetical')}
         >
           <option value="recent">Recently Added</option>
           <option value="alphabetical">A-Z</option>
@@ -146,7 +149,7 @@ function Dashboard() {
       <main className="flex flex-wrap gap-4 p-4">
         {goals.map((goal, idx) => (
           <GoalCard
-            key={(goal as any).documentId || idx}
+            key={goal.documentId || idx}
             goal={goal}
             onDelete={() => handleDeleteGoal(goal)}
             onEdit={() => handleEditGoal(goal)}

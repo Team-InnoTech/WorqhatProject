@@ -1,7 +1,7 @@
 export interface goals {
-  documentId?: string
-  topic: string
-  status: 'Beginner' | 'Intermediate' | 'Advanced';
+  documentId?: string;
+  title: string;
+  status: string;
   notes: string[]
   resources: string[]
   tags: string[]
