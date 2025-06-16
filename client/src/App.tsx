@@ -6,11 +6,13 @@ import Dashboard from './Pages/Dashboard'
 import VerifyOtp from './Pages/Verifyotp'
 import ForgotPassword from './Pages/ForgetPassword'
 import ResetPassword from './Pages/ResetPassword'
+import LandingPage from './Pages/LandingPage'
 
 const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path='/' element={<LandingPage />} />
+      <Route path="/login" element={<Login />} />
       <Route path='/forget-password' element={<ForgotPassword />} />
       <Route path='/verify-otp' element={<VerifyOtp/>} />
       <Route path='/reset-password' element={<ResetPassword />} />
