@@ -42,7 +42,7 @@ export default function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
           Notes
         </h3>
         <ul className="list-disc list-inside text-md text-gray-700 pl-1">
-          {goal.notes.length ? (
+          {goal.notes?.length ? (
             goal.notes.map((note, idx) => <li key={idx}>{note}</li>)
           ) : (
             <li>No notes</li>
@@ -59,7 +59,7 @@ export default function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
             Resources
           </h3>
           <ul className="list-disc list-inside text-sm space-y-1 pl-1">
-            {goal.resources.length ? (
+            {goal.resources?.length ? (
               goal.resources.map((res, idx) => (
                 <li key={idx}>
                   <a
