@@ -76,6 +76,12 @@ const Login = () => {
               />
             </div>
 
+            <div>
+                <a href="/forget-password" className="text-blue-600 hover:underline">
+                    Forget Password?
+                </a>
+            </div>
+
             <Button type="submit" className="w-full mt-4" disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </Button>
