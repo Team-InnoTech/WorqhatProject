@@ -86,7 +86,7 @@ function Dashboard() {
       <Header onAddClick={handleAddClick} />
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4 px-4 py-2">
+      <div className="flex flex-wrap items-center gap-4 p-6">
         <input
           type="text"
           placeholder="Search by topic..."

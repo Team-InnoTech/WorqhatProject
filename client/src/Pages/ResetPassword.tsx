@@ -30,7 +30,7 @@ const ResetPassword = () => {
       if (response.ok) {
         alert('Password reset successful. Please login.')
         localStorage.removeItem('resetEmail')
-        window.location.href = '/'
+        window.location.href = '/login'
       } else {
         alert(data.message || 'Failed to reset password.')
       }
