@@ -26,9 +26,9 @@ export default function CreateGoalForm({
   useEffect(() => {
     if (goalToEdit) {
       setTopic(goalToEdit.topic);
-      setStatus(goalToEdit.status);
-      setNotes(goalToEdit.notes.join("\n"));
-      setResources(goalToEdit.resources.join("\n"));
+      setStatus(goalToEdit.status as "Beginner" | "Intermediate" | "Advanced");
+      setNotes((goalToEdit.notes ?? []).join("\n"));
+      setResources((goalToEdit.resources ?? []).join("\n"));
       setTags(goalToEdit.tags?.join(", ") || "");
     } else {
       // Reset the form if switching from edit to add mode

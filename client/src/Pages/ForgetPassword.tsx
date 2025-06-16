@@ -25,6 +25,7 @@ const handleSendOtp = async (e: React.FormEvent) => {
     else {
       alert(response.data.message || "Failed to send OTP.")
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error sending OTP:", error)
       alert(
