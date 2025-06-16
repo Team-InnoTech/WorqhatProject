@@ -28,7 +28,7 @@ const Register = () => {
       })
 
       if (res.status === 201) {
-        navigate('/')
+        navigate('/login')
       } else {
         setError('Registration failed')
       }
@@ -98,7 +98,7 @@ const Register = () => {
 
           <p className="text-center text-sm text-muted-foreground mt-4">
             Already have an account?{' '}
-            <a href="/" className="text-blue-600 hover:underline">
+            <a href="/login" className="text-blue-600 hover:underline">
               Login here
             </a>
           </p>

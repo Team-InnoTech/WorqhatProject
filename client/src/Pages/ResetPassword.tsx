@@ -28,7 +28,7 @@ const ResetPassword = () => {
       if (response.status === 200) {
         alert('Password reset successful. Please login.')
         localStorage.removeItem('resetEmail')
-        window.location.href = '/'
+        window.location.href = '/login'
       } else {
         alert(response.data.message || 'Failed to reset password.')
       }
