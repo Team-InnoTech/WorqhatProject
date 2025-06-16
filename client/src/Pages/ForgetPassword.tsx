@@ -4,34 +4,35 @@ import { Card, CardContent } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Mail } from 'lucide-react'
+import axios from 'axios';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('')
 
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault()
+const handleSendOtp = async (e: React.FormEvent) => {
+  e.preventDefault()
 
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
+  try {
+      const response = await axios.post("http://localhost:5000/api/auth/send-otp", {
+      email,
+    })
 
-      const data = await response.json()
-
-      if (response.ok) {
-        localStorage.setItem('resetEmail', email)
-        alert('OTP sent to your email.')
-        window.location.href = '/verify-otp'
-      } else {
-        alert(data.message || 'Failed to send OTP.')
-      }
-    } catch (error) {
-      console.error('Error sending OTP:', error)
-      alert('Something went wrong.')
+    if (response.status === 200) {
+      localStorage.setItem("resetEmail", email)
+      alert("OTP sent to your email.")
+      window.location.href = "/verify-otp"
+    } 
+    else {
+      alert(response.data.message || "Failed to send OTP.")
     }
-  }
+    } catch (error: any) {
+      console.error("Error sending OTP:", error)
+      alert(
+      error?.response?.data?.message ||
+      "Something went wrong while sending OTP."
+      )
+    }
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-zinc-900 dark:to-zinc-950">

@@ -4,6 +4,7 @@ import { Card, CardContent } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { LockKeyhole } from 'lucide-react'
+import axios from 'axios';
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('')
@@ -19,24 +20,21 @@ const ResetPassword = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, newPassword }),
+      const response = await axios.post('http://localhost:5000/api/auth/reset-password', {
+      email,
+      newPassword,
       })
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (response.status === 200) {
         alert('Password reset successful. Please login.')
         localStorage.removeItem('resetEmail')
         window.location.href = '/'
       } else {
-        alert(data.message || 'Failed to reset password.')
+        alert(response.data.message || 'Failed to reset password.')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error resetting password:', error)
-      alert('Something went wrong.')
+      alert(error?.response?.data?.message || 'Something went wrong.')
     }
   }
 

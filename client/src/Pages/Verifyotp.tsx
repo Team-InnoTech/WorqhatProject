@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent } from '../components/ui/card'
 import { Label } from '../components/ui/label'
 import { ShieldCheck } from 'lucide-react'
+import axios from 'axios';
 import {
   InputOTP,
   InputOTPGroup,
@@ -25,23 +26,20 @@ const VerifyOtp = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp }),
+      const response = await axios.post('http://localhost:5000/api/auth/verify-otp', {
+      email,
+      otp,
       })
 
-      const data = await response.json()
-
-      if (response.ok && data.success) {
+      if (response.status === 200 && response.data.success) {
         alert('OTP verified successfully.')
         navigate('/reset-password')
       } else {
-        alert(data.message || 'Invalid OTP')
+        alert(response.data.message || 'Invalid OTP')
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('OTP verification failed:', err)
-      alert('Something went wrong. Please try again.')
+      alert(err?.response?.data?.message || 'Something went wrong. Please try again.')
     }
   }
 
