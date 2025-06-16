@@ -71,7 +71,6 @@ export const getProfile = async (req: Request & { user?: any }, res: Response) =
 
 };
 
-// Declare OTP store globally if not already
 (globalThis as any).otpStore = (globalThis as any).otpStore || {}
 
 export const sendOtp = async (req: Request, res: Response): Promise<void> => {

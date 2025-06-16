@@ -138,23 +138,24 @@ export const updateGoal = async (req: Request & { user?: any }, res: Response): 
     const safeResources = JSON.stringify(resources || []);
     const safeTags = JSON.stringify(tags || []);
 
-    const deleteSQL = `ALTER TABLE goals DELETE WHERE documentId = '${documentId}' AND foreign_key_column = '${userId}'`;
+    // const deleteSQL = `ALTER TABLE goals DELETE WHERE documentId = '${documentId}' AND foreign_key_column = '${userId}'`;
 
-    const insertSQL = `
-      INSERT INTO goals (documentId, topic, status, notes, resources, tags, foreign_key_column)
-      VALUES (
-        '${documentId}',
-        '${safeTopic}',
-        '${safeStatus}',
-        '${safeNotes}',
-        '${safeResources}',
-        '${safeTags}',
-        '${userId}'
-      );
-    `;
+    // const insertSQL = `
+    //   INSERT INTO goals (documentId, topic, status, notes, resources, tags, foreign_key_column)
+    //   VALUES (
+    //     '${documentId}',
+    //     '${safeTopic}',
+    //     '${safeStatus}',
+    //     '${safeNotes}',
+    //     '${safeResources}',
+    //     '${safeTags}',
+    //     '${userId}'
+    //   );
+    // `;
 
-    await worqClient(deleteSQL);
-    const result = await worqClient(insertSQL);
+    const query = `Update goals SET topic = '${safeTopic}', status = '${safeStatus}', notes = '${safeNotes}', resources = '${safeResources}', tags = '${safeTags}' where documentId = '${documentId}' AND foreign_key_column = '${userId}'`;
+    // await worqClient(deleteSQL);
+    const result = await worqClient(query);
 
     res.status(200).json({ message: `Goal with ID ${documentId} updated`, result });
 
