@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { Card, CardContent } from '../components/ui/card'
 import { Label } from '../components/ui/label'
@@ -12,10 +13,36 @@ import {
 
 const VerifyOtp = () => {
   const [otp, setOtp] = useState('')
+  const navigate = useNavigate()
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Verifying OTP:', otp)
+
+    const email = localStorage.getItem('resetEmail')
+    if (!email) {
+      alert('Email not found. Please go back and enter your email again.')
+      return
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        alert('OTP verified successfully.')
+        navigate('/reset-password')
+      } else {
+        alert(data.message || 'Invalid OTP')
+      }
+    } catch (err) {
+      console.error('OTP verification failed:', err)
+      alert('Something went wrong. Please try again.')
+    }
   }
 
   return (
@@ -55,8 +82,8 @@ const VerifyOtp = () => {
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
-              Didn't receive OTP?{' '}
-              <a href="#" className="text-blue-600 hover:underline">
+              Didn’t receive OTP?{' '}
+              <a href="/forgot-password" className="text-blue-600 hover:underline">
                 Resend
               </a>
             </p>
