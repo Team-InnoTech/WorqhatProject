@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Header from '../components/page_comp/Header';
 import GoalCard from '../components/page_comp/GoalCard';
 import CreateGoalForm from '../components/page_comp/CreateGoalForm';
@@ -8,6 +8,7 @@ import { RxCross2 } from 'react-icons/rx';
 import { fetchGoals, createGoal, updateGoal, deleteGoal } from '../services/goalService';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
+import debounce from "lodash.debounce";
 
 import {
   Sheet,
@@ -46,6 +47,18 @@ function Dashboard() {
       console.error('Failed to apply filters:', err);
     }
   };
+
+  const debouncedFilter = useCallback(
+    debounce(() => {
+      applyFilters();
+    }, 500),
+      [search, status, sort]
+    );
+
+    useEffect(() => {
+      debouncedFilter();
+      return debouncedFilter.cancel;
+    }, [search, status, sort]);
 
   const handleAddClick = () => {
     setEditingGoal(null);
