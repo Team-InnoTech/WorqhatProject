@@ -2,6 +2,7 @@ import type { goals } from "../../types/goals";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { FaStickyNote, FaLink, FaTags, FaEdit, FaTrash } from "react-icons/fa";
+import { MdInsertDriveFile } from "react-icons/md";
 
 type GoalCardProps = {
   goal: goals;
@@ -36,8 +37,8 @@ export default function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
       </div>
 
       {/* Notes */}
-      <div className="">
-        <h3 className="flex items-center gap-2 text-md font-semibold text-orange-600">
+      <div>
+        <h3 className="flex items-center gap-2 text-md font-semibold text-orange-600 mt-4">
           <FaStickyNote className="text-orange-600" />
           Notes
         </h3>
@@ -50,11 +51,31 @@ export default function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
         </ul>
       </div>
 
+      {/* Study Material */}
+      {goal.studyMaterial && (
+        <div className="mt-4">
+          <h3 className="flex items-center gap-2 font-semibold text-orange-600">
+            <MdInsertDriveFile className="text-orange-600" />
+            Study Material
+          </h3>
+          <a
+            href={goal.studyMaterial}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-700 underline text-sm mt-1 inline-block break-all"
+          >
+            {goal.studyMaterial.length > 60
+              ? goal.studyMaterial.slice(0, 60) + "..."
+              : goal.studyMaterial}
+          </a>
+        </div>
+      )}
+
       {/* Bottom Section: Resources + Actions */}
-      <div className=" flex justify-between items-end">
+      <div className="flex justify-between items-end mt-4">
         {/* Resources */}
         <div>
-          <h3 className="flex gap-2  font-semibold text-orange-600 mb-1">
+          <h3 className="flex gap-2 font-semibold text-orange-600 mb-1">
             <FaLink className="text-orange-600" />
             Resources
           </h3>

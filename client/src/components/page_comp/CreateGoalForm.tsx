@@ -5,6 +5,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import type { goals } from "../../types/goals";
 import { toast } from "sonner";
+import { uploadFileToWorqhat } from "../../lib/uploadFile"; // ✅ NEW
 
 type CreateGoalFormProps = {
   onAdd: (goal: goals) => void;
@@ -22,6 +23,7 @@ export default function CreateGoalForm({
   const [notes, setNotes] = useState<string>("");
   const [resources, setResources] = useState<string>("");
   const [tags, setTags] = useState<string>("");
+  const [studyMaterial, setStudyMaterial] = useState<File | null>(null);
 
   useEffect(() => {
     if (goalToEdit) {
@@ -30,8 +32,8 @@ export default function CreateGoalForm({
       setNotes((goalToEdit.notes ?? []).join("\n"));
       setResources((goalToEdit.resources ?? []).join("\n"));
       setTags(goalToEdit.tags?.join(", ") || "");
+
     } else {
-      // Reset the form if switching from edit to add mode
       setTopic("");
       setStatus("Beginner");
       setNotes("");
@@ -40,15 +42,27 @@ export default function CreateGoalForm({
     }
   }, [goalToEdit]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    let uploadedFileUrl = "";
+
+    if (studyMaterial) {
+      const url = await uploadFileToWorqhat(studyMaterial);
+      if (!url) {
+        toast.error("Failed to upload study material");
+        return;
+      }
+      uploadedFileUrl = url;
+    }
 
     const newGoal: goals = {
       topic,
       status,
       notes: notes.split("\n").filter(Boolean),
       resources: resources.split("\n").filter(Boolean),
-      tags: tags.split(",").map(tag => tag.trim()).filter(Boolean),
+      tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
+      studyMaterial: uploadedFileUrl || undefined,
     };
 
     onAdd(newGoal);
@@ -59,6 +73,7 @@ export default function CreateGoalForm({
       setNotes("");
       setResources("");
       setTags("");
+      setStudyMaterial(null);
       toast.success("Goal added successfully!");
     } else {
       toast.success("Goal updated successfully!");
@@ -69,11 +84,7 @@ export default function CreateGoalForm({
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <Label className="mb-2">Topic</Label>
-        <Input
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          required
-        />
+        <Input value={topic} onChange={(e) => setTopic(e.target.value)} required />
       </div>
 
       <div>
@@ -91,27 +102,25 @@ export default function CreateGoalForm({
 
       <div>
         <Label className="mb-2">Notes (one per line)</Label>
-        <Textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={3}
-        />
+        <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
       </div>
 
       <div>
         <Label className="mb-2">Resources (one per line)</Label>
-        <Textarea
-          value={resources}
-          onChange={(e) => setResources(e.target.value)}
-          rows={3}
-        />
+        <Textarea value={resources} onChange={(e) => setResources(e.target.value)} rows={3} />
       </div>
 
       <div className="mb-2">
         <Label>Tags (comma-separated)</Label>
+        <Input value={tags} onChange={(e) => setTags(e.target.value)} />
+      </div>
+
+      <div>
+        <Label className="mb-2" id="fileInput">Study Material (File Upload)</Label>
         <Input
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
+          type="file"
+          accept=".pdf,.doc,.docx,.txt,.png,.jpg"
+          onChange={(e) => setStudyMaterial(e.target.files?.[0] || null)}
         />
       </div>
 

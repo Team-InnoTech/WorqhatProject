@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function uploadFileToWorqhat(): Promise<void> {
   const apiKey = 'wh_mbtcop3zMtNyR21UOFrhnGWlcH6Ksy6xBOaOb56';
   const url = 'https://api.worqhat.com/flows/file/fb369b79-18ca-4218-b981-b1e3f6c50319';
