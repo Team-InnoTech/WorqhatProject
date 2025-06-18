@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
 import { worqClient } from '../db/worqdbClient';
 import { goals } from '../types/goals';
+import { Multer } from 'multer';
+
+interface MulterRequest extends Request {
+  file: Express.Multer.File;
+}
 
 // GET all goals
 export const getAllGoals = async (req: Request & { user?: any }, res: Response): Promise<void> => {
@@ -47,46 +52,98 @@ export const getAllGoals = async (req: Request & { user?: any }, res: Response):
 };
 
 // POST: create a new goal
+// export const createGoal = async (req: Request & { user?: any }, res: Response): Promise<void> => {
+//   try {
+//     const userId = req.user?.id;
+//     console.log("User id is:" +userId);
+
+//     if (!userId) {
+//       res.status(401).json({ message: 'Unauthorized: No user info in token' });
+//       return;
+//     }
+
+//     const { topic, status, notes, resources, tags } = req.body as goals;
+
+//     // Step 1: Generate new documentId
+//     const fetchQuery = "SELECT documentId FROM goals WHERE documentId LIKE 'g%'";
+//     const fetchResult = await worqClient(fetchQuery);
+
+//     const gIds = fetchResult?.data?.map((row: any) => row.documentId) || [];
+//     const gNums = gIds
+//       .map((id: string) => parseInt(id.replace('g', ''), 10))
+//       .filter((num: number) => !isNaN(num));
+
+//     const nextNumber = gNums.length > 0 ? Math.max(...gNums) + 1 : 1;
+//     const newDocumentId = `g${nextNumber}`;
+
+//     // Step 2: Escape values
+//     const escape = (val: any) =>
+//       typeof val === 'string'
+//         ? `'${val.replace(/'/g, "''")}'`
+//         : `'${JSON.stringify(val).replace(/'/g, "''")}'`;
+
+//     // Step 3: Insert with userId
+//     const insertSQL = `
+//       INSERT INTO goals (documentId, topic, status, notes, resources, tags, foreign_key_column)
+//       VALUES (
+//         '${newDocumentId}',
+//         ${escape(topic)},
+//         ${escape(status)},
+//         ${escape(notes || [])},
+//         ${escape(resources || [])},
+//         ${escape(tags || [])},
+//         '${userId}'
+//       )
+//     `;
+
+//     const insertResult = await worqClient(insertSQL);
+
+//     res.status(201).json({
+//       message: 'Goal created successfully',
+//       documentId: newDocumentId,
+//       result: insertResult
+//     });
+
+//   } catch (error: any) {
+//     res.status(500).json({ message: 'Failed to create goal', error: error.message });
+//   }
+// };
+
 export const createGoal = async (req: Request & { user?: any }, res: Response): Promise<void> => {
   try {
     const userId = req.user?.id;
-    console.log("User id is:" +userId);
-
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized: No user info in token' });
       return;
     }
 
-    const { topic, status, notes, resources, tags } = req.body as goals;
+    const { topic, status, notes, resources, tags, study_material } = req.body as goals & { study_material?: string };
 
-    // Step 1: Generate new documentId
+    // Generate new documentId
     const fetchQuery = "SELECT documentId FROM goals WHERE documentId LIKE 'g%'";
     const fetchResult = await worqClient(fetchQuery);
 
     const gIds = fetchResult?.data?.map((row: any) => row.documentId) || [];
-    const gNums = gIds
-      .map((id: string) => parseInt(id.replace('g', ''), 10))
-      .filter((num: number) => !isNaN(num));
-
+    const gNums = gIds.map((id: string) => parseInt(id.replace('g', ''), 10)).filter((num: number) => !isNaN(num));
     const nextNumber = gNums.length > 0 ? Math.max(...gNums) + 1 : 1;
     const newDocumentId = `g${nextNumber}`;
 
-    // Step 2: Escape values
     const escape = (val: any) =>
       typeof val === 'string'
         ? `'${val.replace(/'/g, "''")}'`
         : `'${JSON.stringify(val).replace(/'/g, "''")}'`;
 
-    // Step 3: Insert with userId
     const insertSQL = `
-      INSERT INTO goals (documentId, topic, status, notes, resources, tags, foreign_key_column)
-      VALUES (
+      INSERT INTO goals (
+        documentId, topic, status, notes, resources, tags, study_material, foreign_key_column
+      ) VALUES (
         '${newDocumentId}',
         ${escape(topic)},
         ${escape(status)},
         ${escape(notes || [])},
         ${escape(resources || [])},
         ${escape(tags || [])},
+        ${escape(study_material || '')},
         '${userId}'
       )
     `;
@@ -96,13 +153,15 @@ export const createGoal = async (req: Request & { user?: any }, res: Response): 
     res.status(201).json({
       message: 'Goal created successfully',
       documentId: newDocumentId,
-      result: insertResult
+      result: insertResult,
     });
 
   } catch (error: any) {
     res.status(500).json({ message: 'Failed to create goal', error: error.message });
   }
 };
+
+
 
 // PUT: update an existing goal
 export const updateGoal = async (req: Request & { user?: any }, res: Response): Promise<void> => {
