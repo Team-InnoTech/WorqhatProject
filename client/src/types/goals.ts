@@ -5,5 +5,6 @@ export interface goals {
   notes?: string[];
   resources?: string[];
   tags?: string[];
+  studyMaterial?: string;
   foreign_key_column?: string;
 }
