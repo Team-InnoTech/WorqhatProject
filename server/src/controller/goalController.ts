@@ -117,7 +117,7 @@ export const createGoal = async (req: Request & { user?: any }, res: Response): 
       return;
     }
 
-    const { topic, status, notes, resources, tags, study_material } = req.body as goals & { study_material?: string };
+    const { topic, status, notes, resources, tags, studyMaterial } = req.body as goals & { studyMaterial?: string };
 
     // Generate new documentId
     const fetchQuery = "SELECT documentId FROM goals WHERE documentId LIKE 'g%'";
@@ -135,7 +135,7 @@ export const createGoal = async (req: Request & { user?: any }, res: Response): 
 
     const insertSQL = `
       INSERT INTO goals (
-        documentId, topic, status, notes, resources, tags, study_material, foreign_key_column
+        documentId, topic, status, notes, resources, tags, studyMaterial, foreign_key_column
       ) VALUES (
         '${newDocumentId}',
         ${escape(topic)},
@@ -143,7 +143,7 @@ export const createGoal = async (req: Request & { user?: any }, res: Response): 
         ${escape(notes || [])},
         ${escape(resources || [])},
         ${escape(tags || [])},
-        ${escape(study_material || '')},
+        ${escape(studyMaterial || '')},
         '${userId}'
       )
     `;
@@ -160,8 +160,6 @@ export const createGoal = async (req: Request & { user?: any }, res: Response): 
     res.status(500).json({ message: 'Failed to create goal', error: error.message });
   }
 };
-
-
 
 // PUT: update an existing goal
 export const updateGoal = async (req: Request & { user?: any }, res: Response): Promise<void> => {

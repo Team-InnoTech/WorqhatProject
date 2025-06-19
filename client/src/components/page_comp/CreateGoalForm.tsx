@@ -5,7 +5,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import type { goals } from "../../types/goals";
 import { toast } from "sonner";
-import { uploadFileToWorqhat } from "../../lib/uploadFile"; // ✅ NEW
+import { uploadFileToWorqhat } from "../../lib/uploadFileToWorqhat"; // ✅ NEW
 
 type CreateGoalFormProps = {
   onAdd: (goal: goals) => void;
@@ -116,7 +116,7 @@ export default function CreateGoalForm({
       </div>
 
       <div>
-        <Label className="mb-2" id="fileInput">Study Material (File Upload)</Label>
+        <Label className="mb-2">Study Material (File Upload)</Label>
         <Input
           type="file"
           accept=".pdf,.doc,.docx,.txt,.png,.jpg"

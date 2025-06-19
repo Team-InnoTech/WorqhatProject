@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useCallback } from 'react';
-=======
-import { useCallback, useEffect, useState } from 'react';
->>>>>>> 4193230a09deac9e873024856752c72559e6d002
 import Header from '../components/page_comp/Header';
 import GoalCard from '../components/page_comp/GoalCard';
 import CreateGoalForm from '../components/page_comp/CreateGoalForm';
@@ -29,25 +25,21 @@ function Dashboard() {
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
-  const [sort, setSort] = useState<'recent' | 'alphabetical'>('recent');
+  const [sort, setSort] = useState('recent');
 
-<<<<<<< HEAD
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     applyFilters();
   }, []);
-=======
->>>>>>> 4193230a09deac9e873024856752c72559e6d002
 
-const applyFilters = useCallback(async () => {
-  try {
-    const params = new URLSearchParams();
-    if (search) params.append('search', search);
-    if (status) params.append('status', status);
-    if (sort) params.append('sort', sort);
+  const applyFilters = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (status) params.append('status', status);
+      if (sort) params.append('sort', sort);
 
-<<<<<<< HEAD
       const response = await fetchGoals(params.toString());
       setGoals(response);
       setOpen(false); // Close the sheet
@@ -55,18 +47,6 @@ const applyFilters = useCallback(async () => {
       console.error('Failed to apply filters:', err);
     }
   };
-=======
-    const response = await fetchGoals(params.toString());
-    setGoals(response);
-  } catch (err) {
-    console.error('Failed to apply filters:', err);
-  }
-}, [search, status, sort]);
-
-useEffect(() => {
-  applyFilters();
-}, [applyFilters]);
->>>>>>> 4193230a09deac9e873024856752c72559e6d002
 
   const debouncedFilter = useCallback(
     debounce(() => {
@@ -92,20 +72,19 @@ useEffect(() => {
 
   const handleSaveGoal = async (goal: goals) => {
     try {
-      if (editingGoal?.documentId) {
-        await updateGoal(editingGoal.documentId, goal);
+      if (editingGoal && (editingGoal as any).documentId) {
+        await updateGoal((editingGoal as any).documentId, goal);
         setGoals(prev =>
-          prev.map(g => (g.documentId === editingGoal.documentId ? goal : g))
+          prev.map(g => ((g as any).documentId === (editingGoal as any).documentId ? goal : g))
         );
       } else {
-        const newGoal: goals = { ...goal, documentId: uuidv4() };
+        const newGoal = { ...goal, documentId: uuidv4() };
         await createGoal(newGoal);
         setGoals(prev => [...prev, newGoal]);
       }
     } catch (err) {
       console.error('Save failed:', err);
     }
-
     setShowForm(false);
     setEditingGoal(null);
   };
@@ -117,11 +96,9 @@ useEffect(() => {
 
   const handleDeleteGoal = async (goal: goals) => {
     try {
-      if (goal.documentId) {
-        await deleteGoal(goal.documentId);
-        setGoals(prev => prev.filter(g => g.documentId !== goal.documentId));
-        toast.success('Deleted successfully');
-      }
+      await deleteGoal((goal as any).documentId);
+      setGoals(prev => prev.filter(g => (g as any).documentId !== (goal as any).documentId));
+      toast.success('Deleted successfully');
     } catch (err) {
       console.error('Delete failed:', err);
     }
@@ -154,7 +131,6 @@ useEffect(() => {
               <option value="Advanced">Advanced</option>
             </select>
 
-<<<<<<< HEAD
             <select
               className="border px-3 py-2 rounded-md w-full"
               value={sort}
@@ -163,16 +139,6 @@ useEffect(() => {
               <option value="recent">Recently Added</option>
               <option value="alphabetical">A-Z</option>
             </select>
-=======
-        <select
-          className="border px-3 py-2 rounded-md w-full sm:w-40"
-          value={sort}
-          onChange={e => setSort(e.target.value as 'recent' | 'alphabetical')}
-        >
-          <option value="recent">Recently Added</option>
-          <option value="alphabetical">A-Z</option>
-        </select>
->>>>>>> 4193230a09deac9e873024856752c72559e6d002
 
             <button
               className="bg-black text-white px-4 py-2 rounded-md w-full"
@@ -262,21 +228,6 @@ useEffect(() => {
           </div>
         </div>
       )}
-<<<<<<< HEAD
-=======
-
-      {/* Goal List */}
-      <main className="flex flex-wrap gap-4 p-4">
-        {goals.map((goal, idx) => (
-          <GoalCard
-            key={goal.documentId || idx}
-            goal={goal}
-            onDelete={() => handleDeleteGoal(goal)}
-            onEdit={() => handleEditGoal(goal)}
-          />
-        ))}
-      </main>
->>>>>>> 4193230a09deac9e873024856752c72559e6d002
     </div>
   );
 }
