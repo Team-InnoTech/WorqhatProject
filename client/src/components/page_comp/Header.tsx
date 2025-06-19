@@ -1,4 +1,5 @@
 import { Button } from "../ui/button";
+<<<<<<< HEAD
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,6 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+=======
+>>>>>>> 4193230a09deac9e873024856752c72559e6d002
 import { useNavigate } from "react-router-dom";
 
 type HeaderProps = {
@@ -17,6 +20,7 @@ type HeaderProps = {
 export default function Header({ onAddClick }: HeaderProps) {
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : { username: "User" };
 
@@ -72,6 +76,26 @@ export default function Header({ onAddClick }: HeaderProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+=======
+  return (
+    <header className="sticky top-0 z-50 flex items-center justify-between w-full px-6 py-4 border-b bg-white dark:bg-zinc-900 shadow-sm">
+      <h1 className="text-2xl font-bold">📚 Learning Tracker</h1>
+
+      <div className="flex items-center gap-4">
+        <Button onClick={onAddClick}>Add Goal</Button>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/login")}
+        >
+          Login
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/signup")}
+        >
+          Sign Up
+        </Button>
+>>>>>>> 4193230a09deac9e873024856752c72559e6d002
       </div>
     </header>
   );
