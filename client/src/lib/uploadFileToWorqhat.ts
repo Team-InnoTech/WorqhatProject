@@ -15,7 +15,8 @@ export const uploadFileToWorqhat = async (file: File): Promise<string | null> =>
       },
     });
 
-    const data: { url?: string } = response.data;
+    console.log(response);
+    const data: { url?: string } = response.data.data;
 
     if (data.url) {
       console.log("File uploaded URL:", data.url);

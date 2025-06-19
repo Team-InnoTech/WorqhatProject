@@ -110,6 +110,7 @@ export const getAllGoals = async (req: Request & { user?: any }, res: Response):
 // };
 
 export const createGoal = async (req: Request & { user?: any }, res: Response): Promise<void> => {
+  console.log('Incoming Goal Payload:', req.body);
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -117,7 +118,7 @@ export const createGoal = async (req: Request & { user?: any }, res: Response): 
       return;
     }
 
-    const { topic, status, notes, resources, tags, studyMaterial } = req.body as goals & { studyMaterial?: string };
+    const { topic, status, notes, resources, tags, studyMaterial } = req.body as goals;
 
     // Generate new documentId
     const fetchQuery = "SELECT documentId FROM goals WHERE documentId LIKE 'g%'";
@@ -157,6 +158,7 @@ export const createGoal = async (req: Request & { user?: any }, res: Response): 
     });
 
   } catch (error: any) {
+    console.error('Create Goal Error:', error); // 👈 Add this line
     res.status(500).json({ message: 'Failed to create goal', error: error.message });
   }
 };
@@ -164,7 +166,7 @@ export const createGoal = async (req: Request & { user?: any }, res: Response): 
 // PUT: update an existing goal
 export const updateGoal = async (req: Request & { user?: any }, res: Response): Promise<void> => {
   const { documentId } = req.params;
-  const { topic, status, notes, resources, tags } = req.body;
+  const { topic, status, notes, resources, tags, studyMaterial } = req.body;
   const userId = req.user?.id;
 
   if (!userId) {
@@ -194,6 +196,7 @@ export const updateGoal = async (req: Request & { user?: any }, res: Response): 
     const safeNotes = JSON.stringify(notes || []);
     const safeResources = JSON.stringify(resources || []);
     const safeTags = JSON.stringify(tags || []);
+    const safeStudyMaterial = studyMaterial.replace(/'/g, "''");
 
     // const deleteSQL = `ALTER TABLE goals DELETE WHERE documentId = '${documentId}' AND foreign_key_column = '${userId}'`;
 
@@ -210,7 +213,7 @@ export const updateGoal = async (req: Request & { user?: any }, res: Response): 
     //   );
     // `;
 
-    const query = `Update goals SET topic = '${safeTopic}', status = '${safeStatus}', notes = '${safeNotes}', resources = '${safeResources}', tags = '${safeTags}' where documentId = '${documentId}' AND foreign_key_column = '${userId}'`;
+    const query = `Update goals SET topic = '${safeTopic}', status = '${safeStatus}', notes = '${safeNotes}', resources = '${safeResources}', tags = '${safeTags}', studyMaterial = '${safeStudyMaterial}' where documentId = '${documentId}' AND foreign_key_column = '${userId}'`;
     // await worqClient(deleteSQL);
     const result = await worqClient(query);
 
