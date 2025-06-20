@@ -110,8 +110,8 @@ export default function CreateGoalForm({
         <Textarea value={resources} onChange={(e) => setResources(e.target.value)} rows={3} />
       </div>
 
-      <div className="mb-2">
-        <Label>Tags (comma-separated)</Label>
+      <div className="mb-6">
+        <Label className="mb-2">Tags (comma-separated)</Label>
         <Input value={tags} onChange={(e) => setTags(e.target.value)} />
       </div>
 
