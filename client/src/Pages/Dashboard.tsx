@@ -196,7 +196,7 @@ function Dashboard() {
         </div>
 
         {/* Goal Cards */}
-        <main className="flex-1 p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <main className="flex-1 p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {goals.map((goal, idx) => (
             <div key={(goal as any).documentId || idx} className="min-h-[180px]">
               <GoalCard

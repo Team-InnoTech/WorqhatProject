@@ -7,6 +7,7 @@ import VerifyOtp from './Pages/Verifyotp'
 import ForgotPassword from './Pages/ForgetPassword'
 import ResetPassword from './Pages/ResetPassword'
 import LandingPage from './Pages/LandingPage'
+import Predict from './Pages/Predict'
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
       <Route path='/reset-password' element={<ResetPassword />} />
       <Route path="/register" element={<Register />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path='/predict' element={<Predict />}/>
     </Routes>
   )
 }

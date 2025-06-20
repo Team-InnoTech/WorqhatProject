@@ -46,6 +46,13 @@ export default function Header({ onAddClick }: HeaderProps) {
           Add Goal
         </Button>
 
+        <Button
+          className="w-28 h-10 rounded-lg font-semibold bg-blue-600 hover:bg-blue-400"
+          onClick={() => navigate('/predict')}
+        >
+          Predict Time
+        </Button>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="w-10 h-10 ring-1 ring-zinc-300 dark:ring-zinc-600 cursor-pointer transition hover:ring-blue-400">
