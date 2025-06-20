@@ -1,7 +1,7 @@
 import axios from 'axios';
+const apiKey = 'wh_mbtcop3zMtNyR21UOFrhnGWlcH6Ksy6xBOaOb56';
 
 export const uploadFileToWorqhat = async (file: File): Promise<string | null> => {
-  const apiKey = 'wh_mbtcop3zMtNyR21UOFrhnGWlcH6Ksy6xBOaOb56';
   const url = 'https://api.worqhat.com/flows/file/9cff4cf7-de81-489c-9530-ccb5e6888c9e';
 
   const formData = new FormData();
@@ -30,3 +30,51 @@ export const uploadFileToWorqhat = async (file: File): Promise<string | null> =>
     return null;
   }
 }
+
+
+interface FlowInput {
+  topic: string;
+  status: string;
+  resources: string;
+  tags: string;
+  hours_spent_perday: number;
+}
+
+interface FlowResponse {
+  estimated_days: number;
+  confidence: 'high' | 'medium' | 'low';
+  summary: string;
+}
+
+export const triggerFlow = async ({
+  topic,
+  status,
+  resources,
+  tags,
+  hours_spent_perday,
+}: FlowInput): Promise<FlowResponse> => {
+  const url = 'https://api.worqhat.com/flows/trigger/bf0f7e49-6ecd-440d-bd48-8b776f215cc3';
+
+  const data = {
+    topic,
+    status,
+    resources,
+    tags,
+    hours_spent_perday,
+  };
+
+    try {
+      const response = await axios.post(url, data, {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Success:', response.data);
+      return response.data.data as FlowResponse;
+  } catch (error) {
+      console.error('Error:', error);
+      throw error;
+  }
+};

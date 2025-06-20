@@ -6,6 +6,7 @@ import { Checkbox } from "../components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { triggerFlow } from "../lib/uploadFileToWorqhat";
 
 export default function Predict() {
   const [goals, setGoals] = useState<goals[]>([]);
@@ -15,6 +16,8 @@ export default function Predict() {
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+
+  const [predictions, setPredictions] = useState<Record<string, { estimated_days: number; confidence: string; summary: string }>>({});
 
   useEffect(() => {
     const loadGoals = async () => {
@@ -51,10 +54,34 @@ export default function Predict() {
     setSelectAll(!selectAll);
   };
 
-  const openPredictionModal = () => {
-    if (selectedGoals.length === 0) return;
-    setShowModal(true);
-  };
+  const openPredictionModal = async () => {
+  if (selectedGoals.length === 0) return;
+
+  const predictionResults: Record<string, any> = {};
+
+  for (const id of selectedGoals) {
+    const goal = goals.find(g => (g as any).documentId === id);
+    if (!goal) continue;
+
+    try {
+      const result = await triggerFlow({
+        topic: goal.topic,
+        status: goal.status,
+        resources: (goal.resources || []).join(", "),
+        tags: (goal.tags || []).join(", "),
+        hours_spent_perday: goal.hours_spent_perday ,
+      });
+
+      predictionResults[id] = result;
+    } catch (error) {
+      console.error(`Prediction failed for ${goal.topic}:`, error);
+    }
+  }
+
+  setPredictions(predictionResults);
+  setShowModal(true);
+};
+
 
   return (
     <div className="p-6">
@@ -157,25 +184,35 @@ export default function Predict() {
             <DialogTitle>AI Prediction Preview</DialogTitle>
           </DialogHeader>
           <div className="mt-4 space-y-4">
-            {goals
-              .filter(goal => selectedGoals.includes((goal as any).documentId))
-              .map((goal, idx) => (
+          {goals
+            .filter(goal => selectedGoals.includes((goal as any).documentId))
+            .map((goal, idx) => {
+              const id = (goal as any).documentId;
+              const prediction = predictions[id];
+
+              return (
                 <div key={idx} className="border rounded p-3 bg-zinc-100 dark:bg-zinc-900">
-                  <p>
-                    <strong>Topic:</strong> {goal.topic}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {goal.status}
-                  </p>
-                  <p>
-                    <strong>Hours/Day:</strong> {goal.hours_spent_perday || "—"}
-                  </p>
+                  <p><strong>Topic:</strong> {goal.topic}</p>
+                  <p><strong>Status:</strong> {goal.status}</p>
+                  <p><strong>Hours/Day:</strong> {goal.hours_spent_perday || "—"}</p>
+
+                  {prediction ? (
+                    <div className="mt-2 text-sm text-green-700 dark:text-green-300">
+                      <p><strong>Estimated Days:</strong> {prediction.estimated_days}</p>
+                      <p><strong>Confidence:</strong> {prediction.confidence}</p>
+                      <p><strong>Summary:</strong> {prediction.summary}</p>
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-sm text-yellow-600">Prediction not available</p>
+                  )}
                 </div>
-              ))}
-            <p className="text-sm text-gray-500 italic">
-              Prediction will be processed by the WorqHat AI workflow...
-            </p>
-          </div>
+              );
+            })}
+          <p className="text-sm text-gray-500 italic">
+            Prediction will be processed by the WorqHat AI workflow...
+          </p>
+        </div>
+
         </DialogContent>
       </Dialog>
     </div>
